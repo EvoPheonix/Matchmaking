@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const db = require('./persistence');
 const getItems = require('./routes/getItems');
+const getItem = require('./routes/getItem')
 const addItem = require('./routes/addItem');
 const updateItem = require('./routes/updateItem');
 const deleteItem = require('./routes/deleteItem');
@@ -9,10 +10,11 @@ const deleteItem = require('./routes/deleteItem');
 app.use(express.json());
 app.use(express.static(__dirname + '/static'));
 
-app.get('/items', getItems);
-app.post('/items', addItem);
-app.put('/items/:id', updateItem);
-app.delete('/items/:id', deleteItem);
+app.get('/items/:TableName', getItems);
+app.get('items/:TableName/:id', getItem)
+app.post('/items/:TableName', addItem);
+app.put('/items/:TableName/:id', updateItem);
+app.delete('/items/:TableName/:id', deleteItem);
 
 db.init().then(() => {
     app.listen(3000, () => console.log('Listening on port 3000'));

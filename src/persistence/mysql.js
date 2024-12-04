@@ -21,8 +21,8 @@ async function init() {
     const password = PASSWORD_FILE ? fs.readFileSync(PASSWORD_FILE) : PASSWORD;
     const database = DB_FILE ? fs.readFileSync(DB_FILE) : DB;
 
-    await waitPort({ 
-        host, 
+    await waitPort({
+        host,
         port: 3306,
         timeout: 10000,
         waitForDns: true,
@@ -39,7 +39,13 @@ async function init() {
 
     return new Promise((acc, rej) => {
         pool.query(
-            'CREATE TABLE IF NOT EXISTS todo_items (id varchar(36), name varchar(255), completed boolean) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS Gamers (id varchar(36), name varchar(255), mmrank int(80), pw varchar(255), wins int(80), loses int(80)) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS Matches (id varchar(36), players varchar(255), winner varchar(36), gameType varchar(36), location varchar(36)) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS Games (id varchar(36), name varchar(255), description varchar(255)) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS Locations (id varchar(36), name varchar(255), description varchar(255)) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS Admins (id varchar(36), name varchar(255), pw varchar(255), secGroup varchar(36)) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS SecurityGroups (id varchar(36), name varchar(255), description varchar(255), permissions varchar(255)) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS AvailWindow (id varchar(36), name varchar(255), description varchar(255)) DEFAULT CHARSET utf8mb4',
             err => {
                 if (err) return rej(err);
 
@@ -59,30 +65,26 @@ async function teardown() {
     });
 }
 
-async function getItems() {
+async function getItems(table) {
     return new Promise((acc, rej) => {
-        pool.query('SELECT * FROM todo_items', (err, rows) => {
+        pool.query('SELECT * FROM ?', [table], (err, rows) => {
             if (err) return rej(err);
             acc(
                 rows.map(item =>
-                    Object.assign({}, item, {
-                        completed: item.completed === 1,
-                    }),
+                    Object.assign({}, item),
                 ),
             );
         });
     });
 }
 
-async function getItem(id) {
+async function getItem(id, table) {
     return new Promise((acc, rej) => {
-        pool.query('SELECT * FROM todo_items WHERE id=?', [id], (err, rows) => {
+        pool.query('SELECT * FROM ? WHERE id=?', [table, id], (err, rows) => {
             if (err) return rej(err);
             acc(
                 rows.map(item =>
-                    Object.assign({}, item, {
-                        completed: item.completed === 1,
-                    }),
+                    Object.assign({}, item),
                 )[0],
             );
         });
@@ -92,8 +94,8 @@ async function getItem(id) {
 async function storeItem(item) {
     return new Promise((acc, rej) => {
         pool.query(
-            'INSERT INTO todo_items (id, name, completed) VALUES (?, ?, ?)',
-            [item.id, item.name, item.completed ? 1 : 0],
+            'INSERT INTO ? (id, name) VALUES (?, ?)',
+            [item.table, item.id, item.name],
             err => {
                 if (err) return rej(err);
                 acc();
@@ -105,8 +107,8 @@ async function storeItem(item) {
 async function updateItem(id, item) {
     return new Promise((acc, rej) => {
         pool.query(
-            'UPDATE todo_items SET name=?, completed=? WHERE id=?',
-            [item.name, item.completed ? 1 : 0, id],
+            'UPDATE ? SET name=? WHERE id=?',
+            [item.table, item.name, id],
             err => {
                 if (err) return rej(err);
                 acc();
@@ -115,9 +117,9 @@ async function updateItem(id, item) {
     });
 }
 
-async function removeItem(id) {
+async function removeItem(id, table) {
     return new Promise((acc, rej) => {
-        pool.query('DELETE FROM todo_items WHERE id = ?', [id], err => {
+        pool.query(`DELETE FROM ${table} WHERE id = ?`, [id], err => {
             if (err) return rej(err);
             acc();
         });

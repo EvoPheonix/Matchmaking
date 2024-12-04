@@ -5,9 +5,8 @@ module.exports = async (req, res) => {
     const item = {
         id: uuid(),
         name: req.body.name,
-        completed: false,
     };
 
-    await db.storeItem(item);
+    await db.storeItem(item, req.params.TableName);
     res.send(item);
 };

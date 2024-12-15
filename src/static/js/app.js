@@ -10,7 +10,7 @@ function App() {
                     <AvailCard />
                 </Col>
                 <Col>
-                    <MatchesCard />
+                    <PairingCard />
                 </Col>
             </Row>
         </Container>
@@ -139,61 +139,61 @@ function AvailCard(){
     );
 }
 
-function MatchesCard(){
-    const [itemsMatches, setItems] = React.useState(null);
+function PairingCard(){
+    const [itemsPairing, setItems] = React.useState(null);
 
     React.useEffect(() => {
-        fetch('/items/Matches', {method: "GET"})
+        fetch('/items/Pairing', {method: "GET"})
             .then(r => r.json())
             .then(setItems)
             .then(() => {
-                console.log(itemsMatches);
+                console.log(itemsPairing);
             });
     }, []);
    
     
-    const onNewItem = React.useCallback(
+    const onNewItemPair = React.useCallback(
         newItem => {
-            setItems([...itemsMatches, newItem]);
+            setItems([...itemsPairing, newItem]);
         },
-        [itemsMatches],
+        [itemsPairing],
     );
 
-    const onItemUpdateMatches = React.useCallback(
+    const onItemUpdatePairing = React.useCallback(
         item => {
-            const index = itemsMatches.findIndex(i => i.id === item.id);
+            const index = itemsPairing.findIndex(i => i.id === item.id);
             setItems([
-                ...itemsMatches.slice(0, index),
+                ...itemsPairing.slice(0, index),
                 item,
-                ...itemsMatches.slice(index + 1),
+                ...itemsPairing.slice(index + 1),
             ]);
         },
-        [itemsMatches],
+        [itemsPairing],
     );
 
-    const onItemRemovalMatches = React.useCallback(
+    const onItemRemovalPairing = React.useCallback(
         item => {
-            const index = itemsMatches.findIndex(i => i.id === item.id);
-            setItems([...itemsMatches.slice(0, index), ...itemsMatches.slice(index + 1)]);
+            const index = itemsPairing.findIndex(i => i.id === item.id);
+            setItems([...itemsPairing.slice(0, index), ...itemsPairing.slice(index + 1)]);
         },
-        [itemsMatches],
+        [itemsPairing],
     );
 
-    if (itemsMatches === null) return 'Loading...';
+    if (itemsPairing === null) return 'Loading...';
 
     return (
         <React.Fragment>
-            <AddItemForm onNewItem={onNewItem} table="Matches" />
-            {itemsMatches.length === 0 && (
+            <AddItemForm onNewItem={onNewItemPair} table="Pairing" />
+            {itemsPairing.length === 0 && (
                 <p className="text-center">Oopsies</p>
             )}
-            {itemsMatches.map(item => (
+            {itemsPairing.map(item => (
                 <ItemDisplay
                     item={item}
                     key={item.id}
-                    table="Matches"
-                    onItemUpdate={onItemUpdateMatches}
-                    onItemRemoval={onItemRemovalMatches}
+                    table="Pairing"
+                    onItemUpdate={onItemUpdatePairing}
+                    onItemRemoval={onItemRemovalPairing}
                 />
             ))}
         </React.Fragment>
@@ -207,13 +207,14 @@ function AddItemForm({ onNewItem, table }) {
     const [submitting, setSubmitting] = React.useState(false);
 
     const submitNewItem = e => {
-        e.preventDefault();
         setSubmitting(true);
+        e.preventDefault();
         fetch(`/items/${table}`, {
             method: 'POST',
             body: JSON.stringify({ name: newItem }),
             headers: { 'Content-Type': 'application/json' },
         })
+        .catch(b => console.log(b))
             .then(r => r.json())
             .then(item => {
                 onNewItem(item);
@@ -251,6 +252,7 @@ function ItemDisplay({ item, table, onItemUpdate, onItemRemoval }) {
     const { Container, Row, Col, Button } = ReactBootstrap;
 
     const removeItem = () => {
+        console.log(`/items/${table}/${item.id}`);
         fetch(`/items/${table}/${item.id}`, { method: 'DELETE' }).then(() =>
             onItemRemoval(item),
         );

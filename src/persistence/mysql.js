@@ -40,7 +40,7 @@ async function init() {
     return new Promise((acc, rej) => {
         pool.query(
             'CREATE TABLE IF NOT EXISTS Gamers (id varchar(36), name varchar(255), mmrank int(80), pw varchar(255), wins int(80), loses int(80)) DEFAULT CHARSET utf8mb4',
-            'CREATE TABLE IF NOT EXISTS Matches (id varchar(36), players varchar(255), winner varchar(36), gameType varchar(36), location varchar(36)) DEFAULT CHARSET utf8mb4',
+            'CREATE TABLE IF NOT EXISTS Pairing (id varchar(36), players varchar(255), winner varchar(36), gameType varchar(36), location varchar(36)) DEFAULT CHARSET utf8mb4',
             'CREATE TABLE IF NOT EXISTS Games (id varchar(36), name varchar(255), description varchar(255)) DEFAULT CHARSET utf8mb4',
             'CREATE TABLE IF NOT EXISTS Locations (id varchar(36), name varchar(255), description varchar(255)) DEFAULT CHARSET utf8mb4',
             'CREATE TABLE IF NOT EXISTS Admins (id varchar(36), name varchar(255), pw varchar(255), secGroup varchar(36)) DEFAULT CHARSET utf8mb4',
@@ -80,7 +80,7 @@ async function getItems(table) {
 
 async function getItem(id, table) {
     return new Promise((acc, rej) => {
-        pool.query('SELECT * FROM ? WHERE id=?', [table, id], (err, rows) => {
+        pool.query(`SELECT * FROM ${table} WHERE id=${id}`, (err, rows) => {
             if (err) return rej(err);
             acc(
                 rows.map(item =>
@@ -119,7 +119,7 @@ async function updateItem(id, item) {
 
 async function removeItem(id, table) {
     return new Promise((acc, rej) => {
-        pool.query(`DELETE FROM ${table} WHERE id = ?`, [id], err => {
+        pool.query(`DELETE FROM ${table} WHERE id=${id}`, err => {
             if (err) return rej(err);
             acc();
         });

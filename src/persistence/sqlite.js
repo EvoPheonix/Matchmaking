@@ -19,7 +19,7 @@ function init() {
 
             db.serialize(()=>{
                             db.run('CREATE TABLE IF NOT EXISTS Gamers (id varchar(36), name varchar(255), mmrank int(80), pw varchar(255), wins int(80), loses int(80))', (err, result) => { if (err) return rej(err); acc();});
-                            db.run('CREATE TABLE IF NOT EXISTS Matches (id varchar(36), players varchar(255), winner varchar(36), gameType varchar(36), location varchar(36))', (err, result) => { if (err) return rej(err); acc();});
+                            db.run('CREATE TABLE IF NOT EXISTS Pairing (id varchar(36),name varchar(255),players varchar(255),winner varchar(36),gameType varchar(36),location varchar(36))', (err, result) => { if (err) return rej(err); acc();});
                             db.run('CREATE TABLE IF NOT EXISTS Games (id varchar(36), name varchar(255), description varchar(255))', (err, result) => { if (err) return rej(err); acc();});
                             db.run('CREATE TABLE IF NOT EXISTS Locations (id varchar(36), name varchar(255), description varchar(255))', (err, result) => { if (err) return rej(err); acc();});
                             db.run('CREATE TABLE IF NOT EXISTS Admins (id varchar(36), name varchar(255), pw varchar(255), secGroup varchar(36))', (err, result) => { if (err) return rej(err); acc();});
@@ -54,13 +54,11 @@ async function getItems(table) {
 
 async function getItem(id, table) {
     return new Promise((acc, rej) => {
-        db.all('SELECT * FROM ? WHERE id=?', [table, id], (err, rows) => {
+        db.all(`SELECT * FROM ${table} WHERE id=${id}`, (err, rows) => {
             if (err) return rej(err);
             acc(
                 rows.map(item =>
-                    Object.assign({}, item, {
-                        completed: item.completed === 1,
-                    }),
+                    Object.assign({}, item),
                 )[0],
             );
         });
@@ -95,7 +93,7 @@ async function updateItem(id, item) {
 
 async function removeItem(id, table) {
     return new Promise((acc, rej) => {
-        db.run('DELETE FROM ? WHERE id = ?', [table, id], err => {
+        db.run(`DELETE FROM ${table} WHERE id='${id}'`, err => {
             if (err) return rej(err);
             acc();
         });

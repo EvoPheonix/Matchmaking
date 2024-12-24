@@ -80,13 +80,9 @@ async function getItems(table) {
 
 async function getItem(id, table) {
     return new Promise((acc, rej) => {
-        pool.query(`SELECT * FROM ${table} WHERE id=${id}`, (err, rows) => {
+        pool.query(`SELECT * FROM ${table} WHERE id='${id}'`, (err, rows) => {
             if (err) return rej(err);
-            acc(
-                rows.map(item =>
-                    Object.assign({}, item),
-                )[0],
-            );
+            acc(item);
         });
     });
 }

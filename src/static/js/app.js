@@ -28,6 +28,13 @@ function TodoListCard() {
                 console.log(items);
             });
     }, []);
+
+    React.useEffect(() => {
+        fetch('/items/Gamers/fc482e57-c309-47e8-b95a-d680448bc7ee')
+        .then(s => {
+            console.log(s);
+        })
+    });
    
     
     const onNewItem = React.useCallback(

@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const db = require('./persistence');
 const getItems = require('./routes/getItems');
 const getItem = require('./routes/getItem')
@@ -9,6 +10,7 @@ const deleteItem = require('./routes/deleteItem');
 
 app.use(express.json());
 app.use(express.static(__dirname + '/static'));
+app.use(cors());
 
 app.get('/items/:TableName', getItems);
 app.get('items/:TableName/:id', getItem)

@@ -54,13 +54,9 @@ async function getItems(table) {
 
 async function getItem(id, table) {
     return new Promise((acc, rej) => {
-        db.all(`SELECT * FROM ${table} WHERE id=${id}`, (err, rows) => {
+        db.run(`SELECT * FROM ${table} WHERE id='${id}'`, (err, rows) => {
             if (err) return rej(err);
-            acc(
-                rows.map(item =>
-                    Object.assign({}, item),
-                )[0],
-            );
+            acc(rows);
         });
     });
 }
